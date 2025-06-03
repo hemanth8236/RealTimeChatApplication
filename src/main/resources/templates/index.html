@@ -2,56 +2,201 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Join a Chat Room</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
     body {
-      background: linear-gradient(135deg, #6a88e5 0%, #89f7fe 100%);
+      margin: 0;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #2c2c2c;
     }
-    .room-container {
-      background: #fff;
-      padding: 32px 40px;
+    .main-container {
+      display: flex;
+      flex-wrap: wrap;
+      width: 900px;
+      max-width: 95vw;
+      gap: 20px;
+    }
+    .card {
+      background: #ffffff;
       border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(34,60,80,0.18);
+      box-shadow:
+        0 3px 5px rgba(50, 50, 93, 0.1),
+        0 1px 2px rgba(0, 0, 0, 0.06);
+      padding: 16px 20px;
+      flex: 1 1 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: box-shadow 0.3s ease;
+      min-width: 360px;
+    }
+    .card:hover {
+      box-shadow:
+        0 8px 16px rgba(50, 50, 93, 0.18),
+        0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Info Card */
+    .info-card {
+      border: 3px solid #764ba2;
+      background: linear-gradient(135deg, #f3e7fe 0%, #e6e6fa 100%);
+      color: #4a3f6b;
+    }
+    .info-card h2 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      letter-spacing: 0.8px;
+      line-height: 1.2;
+    }
+    .info-card p {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .info-card ul {
+      margin-left: 18px;
+      padding-left: 0;
+      list-style: inside disc;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: #5a4e8a;
+      line-height: 1.25;
+    }
+    .info-card ul li {
+      margin-bottom: 6px;
+    }
+
+    /* Join Card */
+    .join-card h2 {
+      font-weight: 700;
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+      color: #2e2a49;
+      letter-spacing: 0.4px;
       text-align: center;
+      line-height: 1.2;
+    }
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     input[type="number"] {
-      padding: 12px 16px;
-      border-radius: 8px;
-      border: 1.5px solid #3a57e8;
-      font-size: 1.1rem;
-      margin-bottom: 18px;
-      width: 100%;
-      box-sizing: border-box;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 2px solid #764ba2;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #4a3f6b;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      height: 36px;
+      line-height: 1.2;
+    }
+    input[type="number"]::-webkit-inner-spin-button, 
+    input[type="number"]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type="number"]::placeholder {
+      color: #a49ccf;
+      font-weight: 400;
+    }
+    input[type="number"]:focus {
+      border-color: #5e3789;
+      background: #f3e7fe;
     }
     button {
-      padding: 12px 32px;
-      border-radius: 8px;
+      padding: 8px 0;
+      border-radius: 10px;
       border: none;
-      background: #3a57e8;
-      color: #fff;
-      font-weight: bold;
+      background: #764ba2;
+      color: white;
+      font-weight: 700;
       font-size: 1.1rem;
       cursor: pointer;
-      transition: background 0.2s;
+      box-shadow: 0 4px 10px rgba(118, 75, 162, 0.5);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      height: 36px;
+      line-height: 1.2;
     }
-    button:hover {
-      background: #2e44bd;
+    button:hover,
+    button:focus {
+      background: #5e3789;
+      box-shadow: 0 6px 16px rgba(94, 55, 137, 0.7);
+      outline: none;
+    }
+
+    /* Responsive for smaller screens */
+    @media (max-width: 720px) {
+      .main-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .card {
+        max-width: 420px;
+        width: 100%;
+        padding: 14px 18px;
+      }
+      .info-card h2,
+      .join-card h2 {
+        text-align: center;
+      }
+      input[type="number"] {
+        font-size: 0.9rem;
+        height: 32px;
+      }
+      button {
+        font-size: 1rem;
+        height: 32px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="room-container">
-    <h2>Join a Chat Room</h2>
-    <form id="room-form" autocomplete="off">
-      <input type="number" id="room-number" placeholder="Enter room number" min="1" required />
-      <br>
-      <button type="submit">Join</button>
-    </form>
+  <div class="main-container" role="main">
+    <section class="card info-card" role="region" aria-labelledby="welcome-heading">
+      <h2 id="welcome-heading">Welcome to Our Chat!</h2>
+      <p>Connect instantly with others by joining or creating your own chat room. Share your unique room number with friends and enjoy private conversations together. Please remember to be respectful and keep your information safe.</p>
+      <ul>
+        <li>Enter any room number to join or create a chat room instantly.</li>
+        <li>Share the room number with friends to chat together seamlessly.</li>
+        <li>Respect others and avoid sharing sensitive personal information.</li>
+        <li>Conversations are private and visible only to participants in the room.</li>
+      </ul>
+    </section>
+    <section class="card join-card" role="region" aria-labelledby="join-room-heading">
+      <h2 id="join-room-heading">Join a Chat Room</h2>
+      <form id="room-form" autocomplete="off" novalidate>
+        <input 
+          type="number"
+          id="room-number"
+          name="room-number"
+          placeholder="Enter room number"
+          min="1"
+          required
+          aria-describedby="room-desc"
+          inputmode="numeric"
+          pattern="[0-9]*"
+        />
+        <button type="submit" aria-label="Join chat room">Join</button>
+      </form>
+    </section>
   </div>
   <script>
     document.getElementById('room-form').addEventListener('submit', function(e) {

@@ -1,11 +1,3 @@
-<!--
-  Real Time Chat Application
-  - Modern UI with light/dark mode
-  - Room info popup
-  - Real-time messaging using SockJS + STOMP
-  - Room isolation by URL
-  - Well-commented for easy improvements
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Real Time Chat Application</title>
   <style>
-    /* =========================
-       THEME & BASE STYLES
-       ========================= */
+    /* CSS Variables for light and dark mode */
     :root {
       --bg-gradient-start: #6a88e5;
       --bg-gradient-end: #89f7fe;
@@ -76,7 +66,11 @@
       --body-bg-gradient-start: #110c1a;
       --body-bg-gradient-end: #2a1a40;
     }
-    * { box-sizing: border-box; }
+
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -90,9 +84,8 @@
       font-size: 14px;
       transition: background 0.5s ease, color 0.5s ease;
     }
-    /* =========================
-       CHAT CONTAINER & HEADER
-       ========================= */
+
+    /* Container */
     .chat-container {
       background: var(--container-bg);
       backdrop-filter: var(--container-backdrop);
@@ -110,6 +103,8 @@
     .chat-container:hover {
       box-shadow: 0 25px 70px var(--container-hover-shadow);
     }
+
+    /* Header with toggle */
     .header-container {
       display: flex;
       justify-content: center;
@@ -126,9 +121,7 @@
       letter-spacing: 1.2px;
       user-select: none;
     }
-    /* =========================
-       TOGGLE & INFO BUTTONS
-       ========================= */
+    /* Toggle button */
     .toggle-btn {
       position: absolute;
       right: 0;
@@ -145,61 +138,75 @@
       transition: background-color 0.3s ease;
       user-select: none;
     }
-    .toggle-btn:hover { background-color: var(--button-hover-shadow); }
+    .toggle-btn:hover {
+      background-color: var(--button-hover-shadow);
+    }
     .toggle-btn svg {
       width: 22px;
       height: 22px;
       fill: var(--header-color);
       transition: fill 0.3s ease;
     }
-    .info-btn {
-      margin-left: 12px;
-      background: #fff;
-      color: #3a57e8;
-      border: 2px solid #3a57e8;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .info-btn:hover { background: #3a57e8; color: #fff; }
-    .info-popup {
-      position: absolute;
-      top: 60px;
+
+    /* Join Room Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
       right: 0;
-      background: #fff;
-      color: #222;
-      border: 1.5px solid #3a57e8;
-      border-radius: 10px;
-      box-shadow: 0 4px 24px rgba(34,60,80,0.18);
-      padding: 18px 22px 16px 22px;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
       z-index: 100;
-      min-width: 240px;
-      font-size: 0.98rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
     }
-    body.dark .info-popup { background: #2a1a40; color: #eee; border-color: #a85fff; }
-    .info-popup a { color: #3a57e8; word-break: break-all; text-decoration: underline; font-size: 0.97rem; }
-    body.dark .info-popup a { color: #a85fff; }
-    .close-popup {
-      position: absolute;
-      top: 6px;
-      right: 10px;
-      background: transparent;
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 300px;
+    }
+    .modal-content h2 {
+      margin: 0 0 16px;
+      font-size: 1.5rem;
+      color: var(--header-color);
+    }
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--input-border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      transition: border-color 0.3s;
+    }
+    .modal-content input:focus {
+      border-color: var(--input-focus-border);
+      outline: none;
+    }
+    .modal-content button {
+      background: var(--button-bg);
+      color: white;
       border: none;
-      color: #888;
-      font-size: 1.2rem;
+      padding: 10px 20px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background 0.3s;
     }
-    .close-popup:hover { color: #e74c3c; }
-    /* =========================
-       CHAT MESSAGES AREA
-       ========================= */
+    .modal-content button:hover {
+      background: var(--button-hover-bg);
+    }
+
+    /* Chat messages area */
     .chat-messages {
       background: var(--chat-bg);
       flex-grow: 1;
@@ -214,14 +221,28 @@
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
       transition: background-color 0.3s ease;
     }
-    .chat-messages:hover { background-color: var(--chat-hover-bg); }
-    .chat-messages::-webkit-scrollbar { width: 10px; }
-    .chat-messages::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 10px; }
-    .chat-messages::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); border-radius: 10px; border: 2px solid var(--scrollbar-thumb-border); }
+    .chat-messages:hover {
+      background-color: var(--chat-hover-bg);
+    }
+    /* Scrollbar styling for WebKit */
+    .chat-messages::-webkit-scrollbar {
+      width: 10px;
+    }
+    .chat-messages::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+      border-radius: 10px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 10px;
+      border: 2px solid var(--scrollbar-thumb-border);
+    }
+
+    /* Single message container */
     .chat-message {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 0px;
+      margin-bottom: 0px; /* Reduced from 12px */
       align-items: center;
       padding: 8px 14px;
       border-radius: 12px;
@@ -229,7 +250,9 @@
       cursor: default;
       user-select: none;
     }
-    .chat-message:last-child { margin-bottom: 0; }
+    .chat-message:last-child {
+      margin-bottom: 0;
+    }
     .chat-message:hover {
       background-color: var(--chat-message-hover-bg);
       box-shadow: 0 2px 8px var(--chat-message-shadow);
@@ -267,10 +290,14 @@
       font-style: italic;
       padding-left: 8px;
     }
-    /* =========================
-       FORM STYLES
-       ========================= */
-    form { display: flex; flex-direction: column; gap: 20px; }
+
+    /* Form */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     label {
       font-weight: 700;
       margin-bottom: 8px;
@@ -280,6 +307,8 @@
       letter-spacing: 0.02em;
       font-size: 0.9rem;
     }
+
+    /* Username input */
     #username {
       width: 100%;
       padding: 12px 16px;
@@ -297,6 +326,8 @@
       background-color: #fff;
       color: #000;
     }
+
+    /* Message input group */
     .input-group {
       display: flex;
       align-items: center;
@@ -306,7 +337,9 @@
       transition: box-shadow 0.3s ease;
       background-color: var(--container-bg);
     }
-    .input-group:focus-within { box-shadow: 0 0 10px var(--input-focus-shadow); }
+    .input-group:focus-within {
+      box-shadow: 0 0 10px var(--input-focus-shadow);
+    }
     #message {
       flex-grow: 1;
       padding: 12px 16px;
@@ -319,11 +352,28 @@
       color: var(--text-color);
       user-select: text;
     }
-    body.dark #message { background: #2b1f4a; color: #eee; }
-    #message::placeholder { color: #a2abc9; font-style: italic; }
-    body.dark #message::placeholder { color: #a99fff; }
-    #message:focus { outline: none; background: #fff; color: #000; }
-    body.dark #message:focus { background: #3c2c7d; color: #fff; }
+    body.dark #message {
+      background: #2b1f4a;
+      color: #eee;
+    }
+    #message::placeholder {
+      color: #a2abc9;
+      font-style: italic;
+    }
+    body.dark #message::placeholder {
+      color: #a99fff;
+    }
+    #message:focus {
+      outline: none;
+      background: #fff;
+      color: #000;
+    }
+    body.dark #message:focus {
+      background: #3c2c7d;
+      color: #fff;
+    }
+
+    /* Send button inside input group */
     button.submit-btn {
       padding: 12px 28px;
       border: none;
@@ -347,14 +397,49 @@
       transform: scale(1.05);
       box-shadow: 0 0 12px var(--button-hover-shadow);
     }
-    button.submit-btn:active { transform: scale(1); box-shadow: none; }
-    /* =========================
-       RESPONSIVE
-       ========================= */
+    button.submit-btn:active {
+      transform: scale(1);
+      box-shadow: none;
+    }
+
+      #leave-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 32px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+    margin: 16px auto 0;
+    display: none; /* Initially hidden */
+    user-select: none;
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+    width: 140px;
+  }
+  #leave-btn:hover {
+    background-color: #c0392b;
+    box-shadow: 0 6px 14px rgba(192, 57, 43, 0.6);
+  }
+  #leave-btn:focus {
+    outline: none;
+    box-shadow: 0 0 8px #c0392b;
+  }
+
+    /* Responsive */
     @media (max-width: 800px) {
-      .chat-container { height: 90vh; padding: 20px; }
-      h1 { font-size: 1.4rem; }
-      button.submit-btn { padding: 12px 22px; font-size: 1rem; }
+      .chat-container {
+        height: 90vh;
+        padding: 20px;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+      button.submit-btn {
+        padding: 12px 22px;
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
@@ -382,48 +467,54 @@
           <path fill="currentColor" d="M21 12.79A9 9 0 0111.21 3 7 7 0 1012 21a9 9 0 009-8.21z"/>
         </svg>
       </button>
-      <button class="info-btn" id="info-btn" aria-label="Room Info" title="Room Info">?</button>
-      <div class="info-popup" id="info-popup" style="display:none;">
-        <strong>Room Number:</strong> <span id="popup-room"></span><br>
-        <strong>Room Link:</strong> <br>
-        <a id="popup-link" href="#" target="_blank"></a>
-        <button class="close-popup" id="close-popup" aria-label="Close Info">&times;</button>
+    </div>
+
+    <!-- Join Room Modal -->
+    <div class="modal" id="join-modal">
+      <div class="modal-content">
+        <h2>Join Room</h2>
+        <input type="text" id="username" placeholder="Enter your name" />
+        <button id="join-btn">Join</button>
       </div>
     </div>
-    <!-- Chat messages area -->
+
     <section class="chat-messages" id="chat-messages" aria-live="polite" aria-relevant="additions" tabindex="0" aria-label="Chat messages display">
       <!-- Messages will be appended here -->
     </section>
-    <!-- Chat input form -->
-    <form id="chat-form" autocomplete="off">
-      <div>
-        <label for="username">User Name</label>
-        <input type="text" id="username" name="username" placeholder="Enter your name" autocomplete="off" />
-      </div>
+
+    <form id="chat-form" autocomplete="off" style="display:none;">
       <div class="input-group">
         <input type="text" id="message" name="message" placeholder="Write your message here" autocomplete="off" aria-label="Message input" />
         <button type="submit" class="submit-btn" id="sendMessage" aria-label="Send message">Send</button>
       </div>
     </form>
+
+       <button id="leave-btn" type="button" style="display:none;">Leave Room</button>
+
   </main>
-  <!-- =========================
-       SCRIPTS
-       ========================= -->
+
   <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.1/stomp.min.js"></script>
   <script>
-    // =========================
-    // THEME TOGGLE LOGIC
-    // =========================
     const toggleBtn = document.getElementById('theme-toggle');
     const iconSun = document.getElementById('icon-sun');
     const iconMoon = document.getElementById('icon-moon');
     const body = document.body;
+    const joinModal = document.getElementById('join-modal');
+    const joinBtn = document.getElementById('join-btn');
+    const leaveBtn = document.getElementById('leave-btn');
+    const chatForm = document.getElementById('chat-form');
+    const chatMessages = document.getElementById('chat-messages');
+    let stompClient = null;
+    let joined = false;
+
+    // Initialize theme from localStorage or default to light
     if (localStorage.getItem('theme') === 'dark') {
       body.classList.add('dark');
       iconSun.style.display = 'none';
       iconMoon.style.display = 'block';
     }
+
     toggleBtn.addEventListener('click', () => {
       body.classList.toggle('dark');
       const isDark = body.classList.contains('dark');
@@ -432,39 +523,11 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
 
-    // =========================
-    // ROOM INFO POPUP LOGIC
-    // =========================
-    const infoBtn = document.getElementById('info-btn');
-    const infoPopup = document.getElementById('info-popup');
-    const closePopup = document.getElementById('close-popup');
-    const popupRoom = document.getElementById('popup-room');
-    const popupLink = document.getElementById('popup-link');
-    infoBtn.addEventListener('click', function() {
-      const roomId = getRoomId();
-      const link = window.location.origin + '/chat/' + roomId;
-      popupRoom.textContent = roomId;
-      popupLink.textContent = link;
-      popupLink.href = link;
-      infoPopup.style.display = 'block';
-    });
-    closePopup.addEventListener('click', function() {
-      infoPopup.style.display = 'none';
-    });
-    document.addEventListener('mousedown', function(event) {
-      if (infoPopup.style.display === 'block' && !infoPopup.contains(event.target) && event.target !== infoBtn) {
-        infoPopup.style.display = 'none';
-      }
-    });
-
-    // =========================
-    // CHAT LOGIC
-    // =========================
-    let stompClient = null;
     function getRoomId() {
       const parts = window.location.pathname.split('/');
       return parts[parts.length - 1];
     }
+
     function connect() {
       const roomId = getRoomId();
       const socket = new SockJS('/chat');
@@ -473,49 +536,106 @@
         stompClient.subscribe('/topic/messages/' + roomId, function (message) {
           showMessage(JSON.parse(message.body));
         });
+        stompClient.subscribe('/topic/users/' + roomId, function(message) {
+          const users = JSON.parse(message.body);
+          document.getElementById('user-list').innerHTML = users.map(u => `<div>${u}</div>`).join('');
+        });
+        stompClient.subscribe('/topic/notifications/' + roomId, function(message) {
+          showNotificationAsMessage(message.body);
+        });
       });
     }
-    function showMessage(message) {
-      const chat = document.getElementById('chat-messages');
+
+    function joinRoom() {
+      const username = document.getElementById('username').value.trim() || 'Guest';
+      const roomId = getRoomId();
+      stompClient.send('/app/join/' + roomId, {}, username);
+      joined = true;
+      joinModal.classList.remove('active');
+      chatForm.style.display = 'flex';
+      leaveBtn.style.display = 'inline-block';
+      document.getElementById('join-btn').disabled = true;
+    }
+
+    function leaveRoom() {
+      if (joined && stompClient && stompClient.connected) {
+        const username = document.getElementById('username').value.trim() || 'Guest';
+        const roomId = getRoomId();
+        stompClient.send('/app/leave/' + roomId, {}, username);
+        joined = false;
+        chatForm.style.display = 'none';
+        leaveBtn.style.display = 'none';
+        document.getElementById('join-btn').disabled = false;
+        joinModal.classList.add('active');
+      }
+    }
+
+    function showNotificationAsMessage(text) {
       const messageElement = document.createElement('article');
       messageElement.className = 'chat-message';
+      messageElement.style.justifyContent = 'center';
+      messageElement.innerHTML = `<span style="color:#888;font-style:italic;">${text}</span>`;
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showMessage(message) {
+      const messageElement = document.createElement('article');
+      messageElement.className = 'chat-message';
+
       const contentDiv = document.createElement('div');
       contentDiv.className = 'chat-message-content';
+
       const usernameSpan = document.createElement('span');
       usernameSpan.className = 'username';
       usernameSpan.textContent = message.sender + ':';
+
       const messageTextSpan = document.createElement('span');
       messageTextSpan.className = 'message-text';
       messageTextSpan.textContent = message.content;
+
       contentDiv.appendChild(usernameSpan);
       contentDiv.appendChild(messageTextSpan);
+
       const timeElem = document.createElement('time');
       timeElem.className = 'timestamp';
       const now = new Date();
       timeElem.textContent = now.toLocaleTimeString();
+
       messageElement.appendChild(contentDiv);
       messageElement.appendChild(timeElem);
-      chat.appendChild(messageElement);
-      chat.scrollTop = chat.scrollHeight;
+
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
+
     function sendMessage(event) {
       event.preventDefault();
       const sender = document.getElementById('username').value.trim();
       const content = document.getElementById('message').value.trim();
       if (!sender || !content) return;
+
       const chatMessage = { sender, content };
       const roomId = getRoomId();
       stompClient.send('/app/sendmessage/' + roomId, {}, JSON.stringify(chatMessage));
       document.getElementById('message').value = '';
       document.getElementById('message').focus();
     }
+
     document.getElementById('chat-form').addEventListener('submit', sendMessage);
     document.getElementById('message').addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
-        sendMessage(e);
+        sendMessage(e); // Pass the event object
       }
     });
-    window.onload = connect;
+
+    window.onload = function() {
+      connect();
+      joinModal.classList.add('active'); // Show the join modal on load
+    };
+
+    joinBtn.addEventListener('click', joinRoom);
+    leaveBtn.addEventListener('click', leaveRoom);
   </script>
 </body>
 </html>
