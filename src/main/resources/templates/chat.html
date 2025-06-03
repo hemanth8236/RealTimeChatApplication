@@ -147,6 +147,70 @@
       fill: var(--header-color);
       transition: fill 0.3s ease;
     }
+    /* Info button */
+    .info-btn {
+      margin-left: 12px;
+      background: #fff;
+      color: #3a57e8;
+      border: 2px solid #3a57e8;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .info-btn:hover {
+      background: #3a57e8;
+      color: #fff;
+    }
+
+    /* Info popup */
+    .info-popup {
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background: #fff;
+      color: #222;
+      border: 1.5px solid #3a57e8;
+      border-radius: 10px;
+      box-shadow: 0 4px 24px rgba(34,60,80,0.18);
+      padding: 18px 22px 16px 22px;
+      z-index: 100;
+      min-width: 240px;
+      font-size: 0.98rem;
+    }
+    body.dark .info-popup {
+      background: #2a1a40;
+      color: #eee;
+      border-color: #a85fff;
+    }
+    .info-popup a {
+      color: #3a57e8;
+      word-break: break-all;
+      text-decoration: underline;
+      font-size: 0.97rem;
+    }
+    body.dark .info-popup a {
+      color: #a85fff;
+    }
+    .close-popup {
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: #888;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .close-popup:hover {
+      color: #e74c3c;
+    }
 
     /* Chat messages area */
     .chat-messages {
@@ -384,6 +448,13 @@
           <path fill="currentColor" d="M21 12.79A9 9 0 0111.21 3 7 7 0 1012 21a9 9 0 009-8.21z"/>
         </svg>
       </button>
+      <button class="info-btn" id="info-btn" aria-label="Room Info" title="Room Info">?</button>
+      <div class="info-popup" id="info-popup" style="display:none;">
+        <strong>Room Number:</strong> <span id="popup-room"></span><br>
+        <strong>Room Link:</strong> <br>
+        <a id="popup-link" href="#" target="_blank"></a>
+        <button class="close-popup" id="close-popup" aria-label="Close Info">&times;</button>
+      </div>
     </div>
 
     <section class="chat-messages" id="chat-messages" aria-live="polite" aria-relevant="additions" tabindex="0" aria-label="Chat messages display">
@@ -427,11 +498,17 @@
 
     let stompClient = null;
 
+    function getRoomId() {
+      const parts = window.location.pathname.split('/');
+      return parts[parts.length - 1];
+    }
+
     function connect() {
+      const roomId = getRoomId();
       const socket = new SockJS('/chat');
       stompClient = Stomp.over(socket);
       stompClient.connect({}, function (frame) {
-        stompClient.subscribe('/topic/messages', function (message) {
+        stompClient.subscribe('/topic/messages/' + roomId, function (message) {
           showMessage(JSON.parse(message.body));
         });
       });
@@ -474,11 +551,9 @@
       const content = document.getElementById('message').value.trim();
       if (!sender || !content) return;
 
-      const chatMessage = {
-        sender: sender,
-        content: content
-      };
-      stompClient.send("/app/sendmessage", {}, JSON.stringify(chatMessage));
+      const chatMessage = { sender, content };
+      const roomId = getRoomId();
+      stompClient.send('/app/sendmessage/' + roomId, {}, JSON.stringify(chatMessage));
       document.getElementById('message').value = '';
       document.getElementById('message').focus();
     }
@@ -486,11 +561,38 @@
     document.getElementById('chat-form').addEventListener('submit', sendMessage);
     document.getElementById('message').addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
-        sendMessage(e);
+        sendMessage(e); // Pass the event object
       }
     });
 
     window.onload = connect;
+
+    // Room info popup
+    const infoBtn = document.getElementById('info-btn');
+    const infoPopup = document.getElementById('info-popup');
+    const closePopup = document.getElementById('close-popup');
+    const popupRoom = document.getElementById('popup-room');
+    const popupLink = document.getElementById('popup-link');
+
+    infoBtn.addEventListener('click', function() {
+      const roomId = getRoomId();
+      const link = window.location.origin + '/chat/' + roomId;
+      popupRoom.textContent = roomId;
+      popupLink.textContent = link;
+      popupLink.href = link;
+      infoPopup.style.display = 'block';
+    });
+
+    closePopup.addEventListener('click', function() {
+      infoPopup.style.display = 'none';
+    });
+
+    // Optional: close popup when clicking outside
+    document.addEventListener('mousedown', function(event) {
+      if (infoPopup.style.display === 'block' && !infoPopup.contains(event.target) && event.target !== infoBtn) {
+        infoPopup.style.display = 'none';
+      }
+    });
   </script>
 </body>
 </html>
