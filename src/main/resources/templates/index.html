@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Join a Chat Room</title>
   <style>
+    /* Import Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    /* Reset box-sizing for all elements */
     *, *::before, *::after {
       box-sizing: border-box;
     }
+    /* Body styling and centering */
     body {
       margin: 0;
       height: 100vh;
@@ -19,6 +22,7 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #2c2c2c;
     }
+    /* Main container for cards */
     .main-container {
       display: flex;
       flex-wrap: wrap;
@@ -26,6 +30,7 @@
       max-width: 95vw;
       gap: 20px;
     }
+    /* Card base style */
     .card {
       background: #ffffff;
       border-radius: 16px;
@@ -45,8 +50,7 @@
         0 8px 16px rgba(50, 50, 93, 0.18),
         0 4px 6px rgba(0, 0, 0, 0.1);
     }
-
-    /* Info Card */
+    /* Info card style */
     .info-card {
       border: 3px solid #764ba2;
       background: linear-gradient(135deg, #f3e7fe 0%, #e6e6fa 100%);
@@ -77,8 +81,7 @@
     .info-card ul li {
       margin-bottom: 6px;
     }
-
-    /* Join Card */
+    /* Join card style */
     .join-card h2 {
       font-weight: 700;
       font-size: 1.6rem;
@@ -88,12 +91,14 @@
       text-align: center;
       line-height: 1.2;
     }
+    /* Form layout */
     form {
       width: 100%;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
+    /* Room number input style */
     input[type="number"] {
       padding: 10px 14px;
       border-radius: 10px;
@@ -108,19 +113,29 @@
       height: 36px;
       line-height: 1.2;
     }
+    /* Remove number input arrows for Chrome/Safari */
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { 
       -webkit-appearance: none; 
       margin: 0; 
     }
+    /* Remove number input arrows for Firefox */
+    input[type="number"]::-moz-inner-spin-button,
+    input[type="number"]::-moz-outer-spin-button {
+      -moz-appearance: none;
+      margin: 0;
+    }
+    /* Placeholder style */
     input[type="number"]::placeholder {
       color: #a49ccf;
       font-weight: 400;
     }
+    /* Focus style for input */
     input[type="number"]:focus {
       border-color: #5e3789;
       background: #f3e7fe;
     }
+    /* Join button style */
     button {
       padding: 8px 0;
       border-radius: 10px;
@@ -141,7 +156,6 @@
       box-shadow: 0 6px 16px rgba(94, 55, 137, 0.7);
       outline: none;
     }
-
     /* Responsive for smaller screens */
     @media (max-width: 720px) {
       .main-container {
@@ -170,6 +184,7 @@
 </head>
 <body>
   <div class="main-container" role="main">
+    <!-- Info/instructions card -->
     <section class="card info-card" role="region" aria-labelledby="welcome-heading">
       <h2 id="welcome-heading">Welcome to Our Chat!</h2>
       <p>Connect instantly with others by joining or creating your own chat room. Share your unique room number with friends and enjoy private conversations together. Please remember to be respectful and keep your information safe.</p>
@@ -180,6 +195,7 @@
         <li>Conversations are private and visible only to participants in the room.</li>
       </ul>
     </section>
+    <!-- Join room card -->
     <section class="card join-card" role="region" aria-labelledby="join-room-heading">
       <h2 id="join-room-heading">Join a Chat Room</h2>
       <form id="room-form" autocomplete="off" novalidate>
@@ -199,6 +215,7 @@
     </section>
   </div>
   <script>
+    // Handle join form submission: redirect to /chat/{room-number}
     document.getElementById('room-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const room = document.getElementById('room-number').value.trim();
