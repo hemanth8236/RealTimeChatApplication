@@ -18,9 +18,10 @@ This project allows users to join chat rooms by room number and exchange message
 
 ## 🖼️ Screenshots
 
-> _Add screenshots here if you have them!_
-
----
+> ![alt text](<Screenshot 2025-06-05 140626.jpg>) 
+![alt text](<Screenshot 2025-06-05 140802.jpg>) 
+![alt text](<Screenshot 2025-06-05 140830.jpg>) 
+![alt text](<Screenshot 2025-06-05 140855.jpg>)
 
 ## 🏗️ Project Structure
 
@@ -164,6 +165,6 @@ For major changes, please open an issue first to discuss what you would like to 
 
 ## 📫 Contact
 
-For questions or support, open an issue or contact [your-email@example.com](mailto:your-email@example.com).
+For questions or support, open an issue or contact [hemanth9103@gmail.com](mailto:hemanth9103@gmail.com).
 
 ---
